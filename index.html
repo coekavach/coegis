@@ -54,12 +54,8 @@
             border-radius: 6px;
             color: #333;
             border: 1px solid #ddd;
-            max-height: calc(100vh - 150px); /* Adjusted to avoid overlap with top link */
+            max-height: calc(100vh - 100px);
             overflow-y: auto;
-            position: absolute; 
-            bottom: 10px;
-            right: 10px;
-            z-index: 1000;
         }
         
         .legend h4 {
@@ -91,17 +87,17 @@
         .message {
             padding: 12px 15px;
             position: absolute;
-            top: 75px; /* Pushed down to be below the GIS Portal link if it were centered */
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            min-width: 250px; 
+            min-width: 200px; 
             text-align: center;
             border-radius: 4px;
             font-weight: 400;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
             display: none;
             font-size: 14px;
-            z-index: 1002; 
+            z-index: 1002;
         }
         
         .error-message { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
@@ -118,30 +114,25 @@
 
         #coegis-link-container {
             position: absolute;
-            top: 15px; /* Positioned from the top */
-            right: 15px; /* Positioned from the right */
-            z-index: 1003; 
-            background-color: #007bff; 
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            bottom: 10px; 
+            left: 10px;
+            z-index: 1000; 
+            background: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         #coegis-link-container a {
             text-decoration: none;
-            color: white; 
-            display: block; 
+            color: #0078A8; 
+            font-weight: 500;
         }
 
-        #coegis-link-container:hover {
-            background-color: #0056b3; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        #coegis-link-container a:hover {
+            text-decoration: underline;
         }
 
     </style>
@@ -150,17 +141,12 @@
     <div id="map"></div>
     
     <div id="loading" class="loading-spinner" style="display: none;"></div>
-    
-    <!-- GIS Portal Link - Top Right -->
-    <div id="coegis-link-container">
-        <a href="https://coekavach.github.io/coegis" target="_blank" title="Click to access COE KAVACH GIS Portal">
-            CLICK TO ACCESS GIS PORTAL
-        </a>
-    </div>
-
     <div id="error-message" class="message error-message"></div>
     <div id="status-message" class="message status-message"></div>
 
+    <div id="coegis-link-container">
+        <a href="https://coekavach.github.io/coegis" target="_blank" title="COE KAVACH GIS Portal">CLICK TO OPEN KAVACH GIS</a>
+    </div>
 
     <script>
         const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQffbSPryot5eCl1lZC4yexYP4A5AyIqqpdDm8Q7H2UWnZ5Nq-kTSDe1CMeG3gI6Huj8bOHevOpEfWh/pub?gid=0&single=true&output=csv';
@@ -177,13 +163,7 @@
             '#4caf50', '#ff9800', '#673ab7', '#795548', '#607d8b'
         ];
 
-        // Consider moving Leaflet zoom controls if they overlap with the GIS portal link
-        const map = L.map('map'/*, { zoomControl: false } */).setView([22.5937, 78.9629], 5);
-        /*
-        L.control.zoom({
-            position: 'topleft' 
-        }).addTo(map);
-        */
+        const map = L.map('map').setView([22.5937, 78.9629], 5);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -267,9 +247,9 @@
 
         function createLegend() {
             if (legend) map.removeControl(legend);
-            legend = L.control({position: 'bottomright'}); 
+            legend = L.control({position: 'bottomright'});
             legend.onAdd = function (mapCtrl) {
-                const div = L.DomUtil.create('div', 'legend'); 
+                const div = L.DomUtil.create('div', 'legend');
                 const types = Array.from(assetTypes).sort(); 
                 div.innerHTML = '<h4>📍 Asset Types</h4>';
                 if (types.length > 0) {
@@ -278,7 +258,7 @@
                         div.innerHTML += `<div class="legend-item"><div class="legend-icon" style="background-color:${color};"></div><span>${type}</span></div>`;
                     });
                 } else {
-                    div.innerHTML += '<p style="font-size:12px; color:#777;">No asset types loaded.</p>';
+                    div.innerHTML += '<p style="font-size:12px; color:#777;">No asset types found.</p>';
                 }
                 return div;
             };
@@ -288,7 +268,7 @@
         async function loadDataAndPlot() {
             loadingSpinner.style.display = 'block';
             hideMessages();
-            showStatus("Loading..."); 
+            showStatus("Loading..."); // Changed from "Loading asset data..." to simply "Loading..."
 
             try {
                 let csvText, lastError;
@@ -318,10 +298,9 @@
 
                 if (allMarkersLayerGroup) {
                     allMarkersLayerGroup.clearLayers();
-                    map.removeLayer(allMarkersLayerGroup); 
+                } else {
+                    allMarkersLayerGroup = L.featureGroup().addTo(map);
                 }
-                allMarkersLayerGroup = L.featureGroup().addTo(map); 
-                
                 if (legend) { map.removeControl(legend); legend = null; }
 
                 let processedCount = 0, skippedCount = 0, colorIndex = 0;
@@ -365,32 +344,37 @@
                             marker.bindTooltip(name, { permanent: false, direction: 'top', offset: [0, - (leafletIconSizeVal * 0.75) ], className: 'custom-tooltip' }); 
                             marker.on('mouseover', function(e) { this.openTooltip(); });
                             
-                            allMarkers.push(marker); 
+                            allMarkers.push(marker);
                             processedCount++;
                         } else { skippedCount++; }
                     } catch (error) { skippedCount++; console.warn(`Error processing asset row ${index + 1}:`, error); }
                 });
-                
-                allMarkers.forEach(marker => allMarkersLayerGroup.addLayer(marker));
-
 
                 if (processedCount === 0 && assetsData.length > 0) {
                      throw new Error(`No valid map markers could be created from ${assetsData.length} data rows. ${skippedCount > 0 ? skippedCount + ' rows skipped. ' : ''}Please check Latitude/Longitude data format and values in your sheet.`);
-                } else if (processedCount === 0) { 
+                } else if (processedCount === 0) {
                      throw new Error(`No data loaded or no valid markers could be created.`);
                 }
+
+                allMarkers.forEach(marker => allMarkersLayerGroup.addLayer(marker));
                 
                 createLegend(); 
+
+                // --- MODIFIED LINE ---
                 showStatus("Loading Successful"); 
+                // --- END MODIFIED LINE ---
                 
                 if (allMarkersLayerGroup.getLayers().length > 0) {
                     map.fitBounds(allMarkersLayerGroup.getBounds().pad(0.15));
+                } else if (allMarkers.length > 0) { 
+                    map.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.15));
                 }
-
-                setTimeout(hideMessages, 3000);
+                setTimeout(hideMessages, 3000); // Reduced timeout for success message
 
             } catch (error) {
+                // --- MODIFIED LINE for consistency with "Loading Failed" ---
                 showError("Loading Failed"); 
+                // --- END MODIFIED LINE ---
                 console.error("Detailed loading error:", error.message, error); 
                 createLegend(); 
             } finally {
