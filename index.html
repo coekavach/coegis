@@ -77,9 +77,9 @@
         .legend-item:hover { background: #f0f0f0; }
 
         .legend-icon {
-            width: 12px;
-            height: 12px;
-            margin-right: 10px;
+            width: 10px; /* Adjusted for smaller pins potentially */
+            height: 10px;
+            margin-right: 8px;
             border-radius: 50%;
             border: 1px solid rgba(0,0,0,0.1);
         }
@@ -111,6 +111,18 @@
             margin: 12px;
             line-height: 1.5;
         }
+         .custom-tooltip {
+            font-size: 9px; /* For micro pin */
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 2px;
+            padding: 2px 5px;
+            box-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
+            border: none;
+        }
+        .custom-tooltip .leaflet-tooltip-tip {
+             border-top-color: rgba(0, 0, 0, 0.8);
+        }
 
         #coegis-link-container {
             position: absolute;
@@ -134,7 +146,8 @@
         #coegis-link-container a:hover {
             text-decoration: underline;
         }
-
+        .svg-push-pin { /* General class for any push pin style if needed */
+        }
     </style>
 </head>
 <body>
@@ -157,7 +170,7 @@
             { name: 'ThingProxy', url: 'https://thingproxy.freeboard.io/fetch/', needsEncoding: true },
         ];
 
-        const ASSET_COLORS = [
+        const ASSET_COLORS = [ // Kept original list from the provided code
             '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
             '#1abc9c', '#e67e22', '#34495e', '#e91e63', '#00bcd4',
             '#4caf50', '#ff9800', '#673ab7', '#795548', '#607d8b'
@@ -182,11 +195,11 @@
         let colorMap = {};
         let allMarkersLayerGroup;
 
-        // --- START: NEW ICON CREATION FUNCTIONS ---
-        function createTeardropPinIcon(color) { // Renamed for clarity
+        // --- START: ICON CREATION FUNCTIONS ---
+        function createTeardropPinIcon(color) {
             const bodySize = 12; const borderSize = 2; const dotSize = 3;
             const dotOffset = (bodySize - dotSize) / 2;
-            const leafletIconSizeVal = bodySize + (borderSize * 2) + 4; // Includes padding for rotation
+            const leafletIconSizeVal = bodySize + (borderSize * 2) + 4;
             return L.divIcon({
                 className: 'minimal-teardrop-pin',
                 html: `<div style="
@@ -210,13 +223,13 @@
                     "></div>
                 </div>`,
                 iconSize: [leafletIconSizeVal, leafletIconSizeVal],
-                iconAnchor: [leafletIconSizeVal / 2, leafletIconSizeVal], // Tip of the teardrop
-                popupAnchor: [0, -leafletIconSizeVal] // Above the tip
+                iconAnchor: [leafletIconSizeVal / 2, leafletIconSizeVal],
+                popupAnchor: [0, -leafletIconSizeVal]
             });
         }
 
         function createCircleIcon(color) {
-            const size = 14; // diameter
+            const size = 14;
             const borderThickness = 1;
             const iconHtmlSize = size + (borderThickness * 2);
             return L.divIcon({
@@ -230,13 +243,13 @@
                     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
                 "></div>`,
                 iconSize: [iconHtmlSize, iconHtmlSize],
-                iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2], // Center of the circle
-                popupAnchor: [0, -iconHtmlSize / 2] // Above the center
+                iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2],
+                popupAnchor: [0, -iconHtmlSize / 2]
             });
         }
 
         function createSquareIcon(color) {
-            const size = 14; // side length
+            const size = 14;
             const borderThickness = 1;
             const iconHtmlSize = size + (borderThickness * 2);
             return L.divIcon({
@@ -249,11 +262,66 @@
                     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
                 "></div>`,
                 iconSize: [iconHtmlSize, iconHtmlSize],
-                iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2], // Center of the square
-                popupAnchor: [0, -iconHtmlSize / 2] // Above the center
+                iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2],
+                popupAnchor: [0, -iconHtmlSize / 2]
             });
         }
-        // --- END: NEW ICON CREATION FUNCTIONS ---
+
+        function createPushPinIconMicro(color) {
+            // Micro dimensions (9x14px)
+            const iconWidth = 9; 
+            const iconHeight = 14;
+            const vbWidth = 9; 
+            const vbHeight = 14;
+            const headRadius = 3; 
+            const headCenterX = vbWidth / 2;
+            const headCenterY = headRadius;
+            const needleTopY = headCenterY + headRadius * 0.25;
+            const needleBottomY = vbHeight - 0.5;
+            const needleWidth = 1; 
+            const highlightRadius = 0.75;
+            const highlightCx = headCenterX - headRadius * 0.3;
+            const highlightCy = headCenterY - headRadius * 0.3;
+
+            const iconHTML = `
+                <svg width="${iconWidth}" height="${iconHeight}" viewBox="0 0 ${vbWidth} ${vbHeight}" style="overflow: visible;">
+                    <defs>
+                        <filter id="svg_pushpin_dropshadow_micro" x="-80%" y="-80%" width="260%" height="260%"> 
+                            <feDropShadow dx="0.4" dy="0.6" stdDeviation="0.5" flood-color="#000000" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+                    <g>
+                        <line 
+                            x1="${headCenterX}" y1="${needleTopY}" 
+                            x2="${headCenterX}" y2="${needleBottomY}" 
+                            stroke="#606060" stroke-width="${needleWidth}" 
+                            stroke-linecap="round" 
+                        />
+                        <circle 
+                            cx="${headCenterX}" cy="${headCenterY}" r="${headRadius}" 
+                            fill="${color}" 
+                            filter="url(#svg_pushpin_dropshadow_micro)"
+                        />
+                        <circle 
+                            cx="${highlightCx}" 
+                            cy="${highlightCy}" 
+                            r="${highlightRadius}" 
+                            fill="white" 
+                            opacity="0.35"
+                        />
+                    </g>
+                </svg>
+            `;
+
+            return L.divIcon({
+                className: 'svg-push-pin', // Keep a general class
+                html: iconHTML,
+                iconSize: [iconWidth, iconHeight],
+                iconAnchor: [iconWidth / 2, iconHeight],
+                popupAnchor: [0, -(iconHeight - headCenterY + 1)] 
+            });
+        }
+        // --- END: ICON CREATION FUNCTIONS ---
 
         function showError(message) { errorMessage.textContent = message; errorMessage.style.display = 'block'; statusMessage.style.display = 'none'; console.error(message); }
         function showStatus(message) { statusMessage.textContent = message; statusMessage.style.display = 'block'; errorMessage.style.display = 'none'; }
@@ -348,6 +416,7 @@
 
                 let processedCount = 0, skippedCount = 0, colorIndex = 0;
 
+                // First pass to assign colors consistently
                 assetsData.forEach(asset => {
                     const type = asset.AssetType || asset['Asset Type'] || asset.Type || asset.type || 'Unknown Type';
                     if (!colorMap[type]) {
@@ -356,6 +425,7 @@
                     }
                 });
 
+                // Second pass to create markers
                 assetsData.forEach((asset, index) => {
                     try {
                         const lat = parseFloat(asset.Latitude || asset.latitude || asset.lat);
@@ -366,7 +436,7 @@
                         const description = asset.Description || asset.description || 'N/A';
                         const iconColor = colorMap[type];
 
-                        // --- START: MODIFIED ICON LOGIC ---
+                        // --- MODIFIED ICON LOGIC BASED ON MarkerStyle ---
                         const markerStyleRaw = asset.MarkerStyle || asset['Marker Style'] || asset.marker_style || asset.IconStyle || asset['Icon Style'] || asset.icon_style;
                         const markerStyle = (markerStyleRaw || '').toLowerCase().trim();
 
@@ -376,17 +446,26 @@
                         switch (markerStyle) {
                             case 'circle':
                                 markerIcon = createCircleIcon(iconColor);
-                                tooltipOffsetY = -((14 + 2*1)/2 + 5); // approx top of icon
+                                tooltipOffsetY = -((14 + 2*1)/2 + 5); // Approx top of 14px circle icon
                                 break;
                             case 'square':
                                 markerIcon = createSquareIcon(iconColor);
-                                tooltipOffsetY = -((14 + 2*1)/2 + 5); // approx top of icon
+                                tooltipOffsetY = -((14 + 2*1)/2 + 5); // Approx top of 14px square icon
                                 break;
-                            case 'teardrop':
-                            default:
+                            case 'pushpin_micro': // New style for micro push pin
+                                markerIcon = createPushPinIconMicro(iconColor);
+                                // For 9x14 icon, anchored at bottom (14px). Tooltip just above.
+                                tooltipOffsetY = -(markerIcon.options.iconSize[1] + 1); 
+                                break;
+                            // case 'teardrop': // Keep teardrop as a specific option if desired
+                            //     markerIcon = createTeardropPinIcon(iconColor);
+                            //     const teardropIconSizeVal = (12 + (2 * 2) + 4); // From createTeardropPinIcon
+                            //     tooltipOffsetY = -(teardropIconSizeVal * 0.9);
+                            //     break;
+                            default: // Default to teardrop if style is missing or not recognized
                                 markerIcon = createTeardropPinIcon(iconColor);
-                                const teardropIconSize = (12 + (2 * 2) + 4);
-                                tooltipOffsetY = -(teardropIconSize * 0.9); // Adjusted for teardrop anchor
+                                const defaultIconSize = (12 + (2 * 2) + 4); // From createTeardropPinIcon
+                                tooltipOffsetY = -(defaultIconSize * 0.9);
                                 break;
                         }
                         // --- END: MODIFIED ICON LOGIC ---
@@ -395,7 +474,7 @@
                             assetTypes.add(type);
                             uniqueZones.add(zone);
 
-                            const marker = L.marker([lat, lon], { icon: markerIcon }); // Use the dynamically chosen icon
+                            const marker = L.marker([lat, lon], { icon: markerIcon });
                             marker.assetData = {
                                 type: type,
                                 zone: zone,
@@ -410,6 +489,9 @@
 
                             marker.bindTooltip(name, { permanent: false, direction: 'top', offset: [0, tooltipOffsetY], className: 'custom-tooltip' });
                             marker.on('mouseover', function(e) { this.openTooltip(); });
+                            // Optional: close tooltip on mouseout if preferred
+                            // marker.on('mouseout', function(e) { this.closeTooltip(); });
+
 
                             allMarkers.push(marker);
                             processedCount++;
@@ -431,15 +513,15 @@
 
                 if (allMarkersLayerGroup.getLayers().length > 0) {
                     map.fitBounds(allMarkersLayerGroup.getBounds().pad(0.15));
-                } else if (allMarkers.length > 0) {
+                } else if (allMarkers.length > 0) { // Fallback if layer group is empty for some reason
                     map.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.15));
                 }
                 setTimeout(hideMessages, 3000);
 
             } catch (error) {
-                showError("Loading Failed");
+                showError(`Loading Failed: ${error.message}`); // Show more specific error
                 console.error("Detailed loading error:", error.message, error);
-                createLegend();
+                createLegend(); // Still try to create legend (might show "No asset types")
             } finally {
                 loadingSpinner.style.display = 'none';
             }
