@@ -77,8 +77,8 @@
         .legend-item:hover { background: #f0f0f0; }
 
         .legend-icon {
-            width: 12px;
-            height: 12px;
+            width: 10px; /* Adjusted for smaller pins potentially */
+            height: 10px;
             margin-right: 8px;
             border-radius: 50%;
             border: 1px solid rgba(0,0,0,0.1);
@@ -112,8 +112,8 @@
             line-height: 1.5;
         }
          .custom-tooltip {
-            font-size: 9px; /* Suitable for micro icons */
-            background: rgba(0, 0, 0, 0.8); 
+            font-size: 9px; /* For micro pin */
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             border-radius: 2px;
             padding: 2px 5px;
@@ -146,7 +146,7 @@
         #coegis-link-container a:hover {
             text-decoration: underline;
         }
-        .svg-marker {
+        .svg-push-pin { /* General class for any push pin style if needed */
         }
     </style>
 </head>
@@ -170,7 +170,7 @@
             { name: 'ThingProxy', url: 'https://thingproxy.freeboard.io/fetch/', needsEncoding: true },
         ];
 
-        const ASSET_COLORS = [
+        const ASSET_COLORS = [ // Kept original list from the provided code
             '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
             '#1abc9c', '#e67e22', '#34495e', '#e91e63', '#00bcd4',
             '#4caf50', '#ff9800', '#673ab7', '#795548', '#607d8b'
@@ -179,7 +179,7 @@
         const map = L.map('map').setView([22.5937, 78.9629], 5);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             minZoom: 3,
         }).addTo(map);
 
@@ -202,65 +202,123 @@
             const leafletIconSizeVal = bodySize + (borderSize * 2) + 4;
             return L.divIcon({
                 className: 'minimal-teardrop-pin',
-                html: `<div style="background-color: ${color}; width: ${bodySize}px; height: ${bodySize}px; border: ${borderSize}px solid ${color}; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 1px 3px rgba(0,0,0,0.25); position: relative;"><div style="width: ${dotSize}px; height: ${dotSize}px; background: white; border-radius: 50%; position: absolute; top: ${dotOffset}px; left: ${dotOffset}px;"></div></div>`,
-                iconSize: [leafletIconSizeVal, leafletIconSizeVal], iconAnchor: [leafletIconSizeVal / 2, leafletIconSizeVal], popupAnchor: [0, -leafletIconSizeVal]
+                html: `<div style="
+                    background-color: ${color};
+                    width: ${bodySize}px;
+                    height: ${bodySize}px;
+                    border: ${borderSize}px solid ${color};
+                    border-radius: 50% 50% 50% 0;
+                    transform: rotate(-45deg);
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+                    position: relative;
+                ">
+                    <div style="
+                        width: ${dotSize}px;
+                        height: ${dotSize}px;
+                        background: white;
+                        border-radius: 50%;
+                        position: absolute;
+                        top: ${dotOffset}px;
+                        left: ${dotOffset}px;
+                    "></div>
+                </div>`,
+                iconSize: [leafletIconSizeVal, leafletIconSizeVal],
+                iconAnchor: [leafletIconSizeVal / 2, leafletIconSizeVal],
+                popupAnchor: [0, -leafletIconSizeVal]
             });
         }
 
         function createCircleIcon(color) {
-            const size = 14; const borderThickness = 1; const iconHtmlSize = size + (borderThickness * 2);
+            const size = 14;
+            const borderThickness = 1;
+            const iconHtmlSize = size + (borderThickness * 2);
             return L.divIcon({
                 className: 'custom-circle-pin',
-                html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border: ${borderThickness}px solid ${ (color.toLowerCase() === 'white' || color.toLowerCase() === '#ffffff') ? '#aaaaaa' : 'rgba(255,255,255,0.7)'}; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`,
-                iconSize: [iconHtmlSize, iconHtmlSize], iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2], popupAnchor: [0, -iconHtmlSize / 2]
+                html: `<div style="
+                    background-color: ${color};
+                    width: ${size}px;
+                    height: ${size}px;
+                    border: ${borderThickness}px solid ${ (color.toLowerCase() === 'white' || color.toLowerCase() === '#ffffff') ? '#aaaaaa' : 'rgba(255,255,255,0.7)'};
+                    border-radius: 50%;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                "></div>`,
+                iconSize: [iconHtmlSize, iconHtmlSize],
+                iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2],
+                popupAnchor: [0, -iconHtmlSize / 2]
             });
         }
 
         function createSquareIcon(color) {
-            const size = 14; const borderThickness = 1; const iconHtmlSize = size + (borderThickness * 2);
+            const size = 14;
+            const borderThickness = 1;
+            const iconHtmlSize = size + (borderThickness * 2);
             return L.divIcon({
                 className: 'custom-square-pin',
-                html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border: ${borderThickness}px solid ${ (color.toLowerCase() === 'white' || color.toLowerCase() === '#ffffff') ? '#aaaaaa' : 'rgba(255,255,255,0.7)'}; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`,
-                iconSize: [iconHtmlSize, iconHtmlSize], iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2], popupAnchor: [0, -iconHtmlSize / 2]
+                html: `<div style="
+                    background-color: ${color};
+                    width: ${size}px;
+                    height: ${size}px;
+                    border: ${borderThickness}px solid ${ (color.toLowerCase() === 'white' || color.toLowerCase() === '#ffffff') ? '#aaaaaa' : 'rgba(255,255,255,0.7)'};
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                "></div>`,
+                iconSize: [iconHtmlSize, iconHtmlSize],
+                iconAnchor: [iconHtmlSize / 2, iconHtmlSize / 2],
+                popupAnchor: [0, -iconHtmlSize / 2]
             });
         }
 
         function createPushPinIconMicro(color) {
-            const iconWidth = 9; const iconHeight = 14; const vbWidth = 9; const vbHeight = 14;
-            const headRadius = 3; const headCenterX = vbWidth / 2; const headCenterY = headRadius;
-            const needleTopY = headCenterY + headRadius * 0.25; const needleBottomY = vbHeight - 0.5; const needleWidth = 1; 
-            const highlightRadius = 0.75; const highlightCx = headCenterX - headRadius * 0.3; const highlightCy = headCenterY - headRadius * 0.3;
-            const iconHTML = `<svg width="${iconWidth}" height="${iconHeight}" viewBox="0 0 ${vbWidth} ${vbHeight}" style="overflow: visible;"><defs><filter id="svg_pushpin_dropshadow_micro" x="-80%" y="-80%" width="260%" height="260%"><feDropShadow dx="0.4" dy="0.6" stdDeviation="0.5" flood-color="#000000" flood-opacity="0.3"/></filter></defs><g><line x1="${headCenterX}" y1="${needleTopY}" x2="${headCenterX}" y2="${needleBottomY}" stroke="#606060" stroke-width="${needleWidth}" stroke-linecap="round" /><circle cx="${headCenterX}" cy="${headCenterY}" r="${headRadius}" fill="${color}" filter="url(#svg_pushpin_dropshadow_micro)"/><circle cx="${highlightCx}" cy="${highlightCy}" r="${highlightRadius}" fill="white" opacity="0.35"/></g></svg>`;
-            return L.divIcon({ className: 'svg-marker', html: iconHTML, iconSize: [iconWidth, iconHeight], iconAnchor: [iconWidth / 2, iconHeight], popupAnchor: [0, -(iconHeight - headCenterY + 1)] });
-        }
+            // Micro dimensions (9x14px)
+            const iconWidth = 9; 
+            const iconHeight = 14;
+            const vbWidth = 9; 
+            const vbHeight = 14;
+            const headRadius = 3; 
+            const headCenterX = vbWidth / 2;
+            const headCenterY = headRadius;
+            const needleTopY = headCenterY + headRadius * 0.25;
+            const needleBottomY = vbHeight - 0.5;
+            const needleWidth = 1; 
+            const highlightRadius = 0.75;
+            const highlightCx = headCenterX - headRadius * 0.3;
+            const highlightCy = headCenterY - headRadius * 0.3;
 
-        function createLocoIcon(color) { // "Micro" sized colorable loco
-            const iconDisplayWidth = 20; // "Micro" display width for loco
-            const svgViewBoxWidth = 100;
-            const svgViewBoxHeight = 60;
-            const iconDisplayHeight = Math.round(iconDisplayWidth * (svgViewBoxHeight / svgViewBoxWidth)); // 20 * 0.6 = 12
-
-            const svgString = `
-                <svg viewBox="0 0 ${svgViewBoxWidth} ${svgViewBoxHeight}" xmlns="http://www.w3.org/2000/svg" width="${iconDisplayWidth}" height="${iconDisplayHeight}" style="transform: scale(1);">
-                  <circle cx="20" cy="50" r="8" fill="#282828"/>
-                  <circle cx="45" cy="50" r="8" fill="#282828"/>
-                  <circle cx="70" cy="50" r="8" fill="#282828"/>
-                  <rect x="5" y="20" width="80" height="25" fill="${color}"/>
-                  <rect x="55" y="5" width="30" height="25" fill="#787878"/>
-                  <rect x="60" y="10" width="15" height="10" fill="#B0B0B0" stroke="#1E1E1E" stroke-width="0.5"/>
-                  <rect x="5" y="15" width="25" height="20" fill="#404040"/>
-                  <rect x="12" y="5" width="8" height="10" fill="#1E1E1E"/>
-                  <circle cx="8" cy="25" r="3" fill="#D3D3D3" stroke="#1E1E1E" stroke-width="0.5"/>
-                  <rect x="85" y="30" width="10" height="5" fill="#333333"/>
+            const iconHTML = `
+                <svg width="${iconWidth}" height="${iconHeight}" viewBox="0 0 ${vbWidth} ${vbHeight}" style="overflow: visible;">
+                    <defs>
+                        <filter id="svg_pushpin_dropshadow_micro" x="-80%" y="-80%" width="260%" height="260%"> 
+                            <feDropShadow dx="0.4" dy="0.6" stdDeviation="0.5" flood-color="#000000" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+                    <g>
+                        <line 
+                            x1="${headCenterX}" y1="${needleTopY}" 
+                            x2="${headCenterX}" y2="${needleBottomY}" 
+                            stroke="#606060" stroke-width="${needleWidth}" 
+                            stroke-linecap="round" 
+                        />
+                        <circle 
+                            cx="${headCenterX}" cy="${headCenterY}" r="${headRadius}" 
+                            fill="${color}" 
+                            filter="url(#svg_pushpin_dropshadow_micro)"
+                        />
+                        <circle 
+                            cx="${highlightCx}" 
+                            cy="${highlightCy}" 
+                            r="${highlightRadius}" 
+                            fill="white" 
+                            opacity="0.35"
+                        />
+                    </g>
                 </svg>
-            `.trim();
+            `;
 
             return L.divIcon({
-                className: 'svg-marker loco-marker',
-                html: svgString,
-                iconSize: [iconDisplayWidth, iconDisplayHeight],
-                iconAnchor: [iconDisplayWidth / 2, iconDisplayHeight], // Bottom-center
-                popupAnchor: [0, -iconDisplayHeight - 2] // Adjusted popup anchor for smaller size
+                className: 'svg-push-pin', // Keep a general class
+                html: iconHTML,
+                iconSize: [iconWidth, iconHeight],
+                iconAnchor: [iconWidth / 2, iconHeight],
+                popupAnchor: [0, -(iconHeight - headCenterY + 1)] 
             });
         }
         // --- END: ICON CREATION FUNCTIONS ---
@@ -308,23 +366,7 @@
                 if (types.length > 0) {
                     types.forEach(type => {
                         const color = colorMap[type] || '#777777';
-                        let iconHtml = `<div class="legend-icon" style="background-color:${color};"></div>`;
-                        // If you have specific AssetTypes that should show the loco in legend:
-                        if (type.toLowerCase().includes('loco')) { // Example: "Locomotive", "Electric Loco"
-                            const legendLocoWidth = 16; // Slightly smaller than map icon for legend
-                            const legendLocoHeight = Math.round(legendLocoWidth * (60 / 100)); // Approx 10
-                            const legendLocoSvg = `
-                                <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg" width="${legendLocoWidth}" height="${legendLocoHeight}">
-                                  <circle cx="20" cy="50" r="8" fill="#282828"/><circle cx="45" cy="50" r="8" fill="#282828"/><circle cx="70" cy="50" r="8" fill="#282828"/>
-                                  <rect x="5" y="20" width="80" height="25" fill="${color}"/>
-                                  <rect x="55" y="5" width="30" height="25" fill="#787878"/><rect x="60" y="10" width="15" height="10" fill="#B0B0B0" stroke="#1E1E1E" stroke-width="0.5"/>
-                                  <rect x="5" y="15" width="25" height="20" fill="#404040"/><rect x="12" y="5" width="8" height="10" fill="#1E1E1E"/>
-                                  <circle cx="8" cy="25" r="3" fill="#D3D3D3" stroke="#1E1E1E" stroke-width="0.5"/><rect x="85" y="30" width="10" height="5" fill="#333333"/>
-                                </svg>
-                            `.trim();
-                            iconHtml = `<div class="legend-icon" style="width:${legendLocoWidth}px; height:${legendLocoHeight}px; margin-right: 8px; display:inline-block; vertical-align:middle; line-height:0;">${legendLocoSvg}</div>`;
-                        }
-                        div.innerHTML += `<div class="legend-item">${iconHtml}<span>${type}</span></div>`;
+                        div.innerHTML += `<div class="legend-item"><div class="legend-icon" style="background-color:${color};"></div><span>${type}</span></div>`;
                     });
                 } else {
                     div.innerHTML += '<p style="font-size:12px; color:#777;">No asset types found.</p>';
@@ -349,22 +391,32 @@
                         if (response && response.ok) {
                             const text = await response.text();
                             if (text && text.trim().length > 0 && !text.trim().toLowerCase().startsWith('<html')) {
-                                csvText = text; break;
+                                csvText = text;
+                                break;
                             } else throw new Error(`Empty/HTML response from ${proxy.name}`);
                         } else throw new Error(`HTTP ${response?.status || 'Err'}: ${response?.statusText || 'Fail'} from ${proxy.name}`);
                     } catch (error) { lastError = error; console.warn(`❌ ${proxy.name} fail:`, error.message); }
                 }
-                if (!csvText) throw new Error(`All data loading methods failed. Last error: ${lastError?.message || 'Unknown error'}. Check Sheet permissions & network.`);
+                if (!csvText) throw new Error(`All data loading methods failed. Last error: ${lastError?.message || 'Unknown error'}. Please check Google Sheet sharing permissions (must be public) and your network connection.`);
 
                 assetsData = parseCSV(csvText);
-                if (assetsData.length === 0) throw new Error('No data rows in CSV.');
+                if (assetsData.length === 0) throw new Error('No data rows found in the CSV file.');
 
-                allMarkers = []; assetTypes.clear(); uniqueZones.clear(); colorMap = {};
-                if (allMarkersLayerGroup) allMarkersLayerGroup.clearLayers();
-                else allMarkersLayerGroup = L.featureGroup().addTo(map);
+                allMarkers = [];
+                assetTypes.clear();
+                uniqueZones.clear();
+                colorMap = {};
+
+                if (allMarkersLayerGroup) {
+                    allMarkersLayerGroup.clearLayers();
+                } else {
+                    allMarkersLayerGroup = L.featureGroup().addTo(map);
+                }
                 if (legend) { map.removeControl(legend); legend = null; }
 
                 let processedCount = 0, skippedCount = 0, colorIndex = 0;
+
+                // First pass to assign colors consistently
                 assetsData.forEach(asset => {
                     const type = asset.AssetType || asset['Asset Type'] || asset.Type || asset.type || 'Unknown Type';
                     if (!colorMap[type]) {
@@ -373,6 +425,7 @@
                     }
                 });
 
+                // Second pass to create markers
                 assetsData.forEach((asset, index) => {
                     try {
                         const lat = parseFloat(asset.Latitude || asset.latitude || asset.lat);
@@ -381,8 +434,9 @@
                         const zone = (asset.Zone || asset.zone || '').trim() || 'Unknown Zone';
                         const name = asset.Name || asset.name || `Asset ${index + 1}`;
                         const description = asset.Description || asset.description || 'N/A';
-                        const iconColorForType = colorMap[type]; 
+                        const iconColor = colorMap[type];
 
+                        // --- MODIFIED ICON LOGIC BASED ON MarkerStyle ---
                         const markerStyleRaw = asset.MarkerStyle || asset['Marker Style'] || asset.marker_style || asset.IconStyle || asset['Icon Style'] || asset.icon_style;
                         const markerStyle = (markerStyleRaw || '').toLowerCase().trim();
 
@@ -391,59 +445,83 @@
 
                         switch (markerStyle) {
                             case 'circle':
-                                markerIcon = createCircleIcon(iconColorForType);
-                                tooltipOffsetY = -((14 + 2*1)/2 + 5);
+                                markerIcon = createCircleIcon(iconColor);
+                                tooltipOffsetY = -((14 + 2*1)/2 + 5); // Approx top of 14px circle icon
                                 break;
                             case 'square':
-                                markerIcon = createSquareIcon(iconColorForType);
-                                tooltipOffsetY = -((14 + 2*1)/2 + 5);
+                                markerIcon = createSquareIcon(iconColor);
+                                tooltipOffsetY = -((14 + 2*1)/2 + 5); // Approx top of 14px square icon
                                 break;
-                            case 'pushpin_micro':
-                                markerIcon = createPushPinIconMicro(iconColorForType);
+                            case 'pushpin_micro': // New style for micro push pin
+                                markerIcon = createPushPinIconMicro(iconColor);
+                                // For 9x14 icon, anchored at bottom (14px). Tooltip just above.
                                 tooltipOffsetY = -(markerIcon.options.iconSize[1] + 1); 
                                 break;
-                            case 'loco': // Using 'loco' for the micro colorable version
-                                markerIcon = createLocoIcon(iconColorForType); 
-                                // Loco icon is 20x12, anchored at bottom
-                                tooltipOffsetY = -(markerIcon.options.iconSize[1] + 2); 
-                                break;
-                            default:
-                                markerIcon = createTeardropPinIcon(iconColorForType);
-                                const defaultIconSize = (12 + (2 * 2) + 4);
+                            // case 'teardrop': // Keep teardrop as a specific option if desired
+                            //     markerIcon = createTeardropPinIcon(iconColor);
+                            //     const teardropIconSizeVal = (12 + (2 * 2) + 4); // From createTeardropPinIcon
+                            //     tooltipOffsetY = -(teardropIconSizeVal * 0.9);
+                            //     break;
+                            default: // Default to teardrop if style is missing or not recognized
+                                markerIcon = createTeardropPinIcon(iconColor);
+                                const defaultIconSize = (12 + (2 * 2) + 4); // From createTeardropPinIcon
                                 tooltipOffsetY = -(defaultIconSize * 0.9);
                                 break;
                         }
+                        // --- END: MODIFIED ICON LOGIC ---
 
                         if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180 && (lat !== 0 || lon !== 0)) {
-                            assetTypes.add(type); uniqueZones.add(zone);
+                            assetTypes.add(type);
+                            uniqueZones.add(zone);
+
                             const marker = L.marker([lat, lon], { icon: markerIcon });
-                            marker.assetData = { type, zone, name, description, lat, lon, markerStyle: markerStyle };
-                            const popupContent = `<div style="font-family: 'Segoe UI', sans-serif; min-width: 180px;"><h3 style="margin:0 0 8px;color:${iconColorForType};border-bottom:1px solid ${iconColorForType};padding-bottom:4px;font-size:16px;">${name}</h3><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Type:</strong> <span style="color:${iconColorForType};">${type}</span></p><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Zone:</strong> ${zone === 'Unknown Zone' ? 'N/A' : zone}</p><p style="margin:8px 0;color:#444;line-height:1.4;font-size:13px;">${description}</p><p style="margin:4px 0;font-size:11px;color:#777;">Coords: ${lat.toFixed(4)}, ${lon.toFixed(4)}</p></div>`;
+                            marker.assetData = {
+                                type: type,
+                                zone: zone,
+                                name: name,
+                                description: description,
+                                lat: lat,
+                                lon: lon
+                            };
+
+                            const popupContent = `<div style="font-family: 'Segoe UI', sans-serif; min-width: 180px;"><h3 style="margin:0 0 8px;color:${iconColor};border-bottom:1px solid ${iconColor};padding-bottom:4px;font-size:16px;">${name}</h3><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Type:</strong> <span style="color:${iconColor};">${type}</span></p><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Zone:</strong> ${zone === 'Unknown Zone' ? 'N/A' : zone}</p><p style="margin:8px 0;color:#444;line-height:1.4;font-size:13px;">${description}</p><p style="margin:4px 0;font-size:11px;color:#777;">Coords: ${lat.toFixed(4)}, ${lon.toFixed(4)}</p></div>`;
                             marker.bindPopup(popupContent, { maxWidth: 280, className: 'custom-popup' });
+
                             marker.bindTooltip(name, { permanent: false, direction: 'top', offset: [0, tooltipOffsetY], className: 'custom-tooltip' });
                             marker.on('mouseover', function(e) { this.openTooltip(); });
-                            allMarkers.push(marker); processedCount++;
+                            // Optional: close tooltip on mouseout if preferred
+                            // marker.on('mouseout', function(e) { this.closeTooltip(); });
+
+
+                            allMarkers.push(marker);
+                            processedCount++;
                         } else { skippedCount++; }
                     } catch (error) { skippedCount++; console.warn(`Error processing asset row ${index + 1}:`, error); }
                 });
 
                 if (processedCount === 0 && assetsData.length > 0) {
-                     throw new Error(`No valid map markers created from ${assetsData.length} rows. ${skippedCount > 0 ? skippedCount + ' skipped. ' : ''}Check Lat/Lon & MarkerStyle.`);
+                     throw new Error(`No valid map markers could be created from ${assetsData.length} data rows. ${skippedCount > 0 ? skippedCount + ' rows skipped. ' : ''}Please check Latitude/Longitude data format and values in your sheet.`);
                 } else if (processedCount === 0) {
-                     throw new Error(`No data or no valid markers.`);
+                     throw new Error(`No data loaded or no valid markers could be created.`);
                 }
 
                 allMarkers.forEach(marker => allMarkersLayerGroup.addLayer(marker));
+
                 createLegend();
+
                 showStatus("Loading Successful");
-                if (allMarkersLayerGroup.getLayers().length > 0) map.fitBounds(allMarkersLayerGroup.getBounds().pad(0.15));
-                else if (allMarkers.length > 0) map.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.15));
+
+                if (allMarkersLayerGroup.getLayers().length > 0) {
+                    map.fitBounds(allMarkersLayerGroup.getBounds().pad(0.15));
+                } else if (allMarkers.length > 0) { // Fallback if layer group is empty for some reason
+                    map.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.15));
+                }
                 setTimeout(hideMessages, 3000);
 
             } catch (error) {
-                showError(`Loading Failed: ${error.message}`);
+                showError(`Loading Failed: ${error.message}`); // Show more specific error
                 console.error("Detailed loading error:", error.message, error);
-                createLegend();
+                createLegend(); // Still try to create legend (might show "No asset types")
             } finally {
                 loadingSpinner.style.display = 'none';
             }
