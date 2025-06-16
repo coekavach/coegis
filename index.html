@@ -143,13 +143,11 @@
         // Initial map view: Zoom level set to 6 (5 * 1.2)
         const map = L.map('map').setView([25.4600, 78.5720], 5.2);
 
-        // --- CHANGE IS HERE: Using satellite tile layer instead of OpenStreetMap ---
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             minZoom: 3, // Minimum zoom level for the map
-            maxZoom: 18, // Satellite imagery often supports higher zoom levels
+            // maxZoom: 18, // Optional: Define a max zoom if needed
         }).addTo(map);
-        // --- END OF CHANGE ---
 
         const loadingSpinner = document.getElementById('loading');
         const errorMessage = document.getElementById('error-message');
@@ -375,5 +373,5 @@
         }
         loadDataAndPlot();
     </script>
-</body>
+</body> 
 </html>
