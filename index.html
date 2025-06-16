@@ -12,7 +12,7 @@
             crossorigin=""></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
             background: #f8f9fa;
@@ -88,24 +88,26 @@
              border-top-color: rgba(0, 0, 0, 0.8);
         }
 
+        /* --- CHANGE IS HERE: Styling the link container to be transparent --- */
         #coegis-link-container {
             position: absolute;
             bottom: 10px;
             left: 10px;
             z-index: 1000;
-            background: white;
+            background: transparent; /* Removed the white background */
+            box-shadow: none; /* Removed the shadow */
             padding: 6px 10px;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
             font-size: 13px;
             line-height: 1.5;
         }
 
         #coegis-link-container a {
             text-decoration: none;
-            color: #0078A8;
-            font-weight: 500;
+            color: white; /* Changed to white for better contrast on the map */
+            font-weight: bold; /* Made bolder for readability */
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8); /* Added shadow to make text pop */
         }
+        /* --- END OF CHANGE --- */
 
         #coegis-link-container a:hover {
             text-decoration: underline;
@@ -143,11 +145,26 @@
         // Initial map view: Zoom level set to 6 (5 * 1.2)
         const map = L.map('map').setView([25.4600, 78.5720], 5.2);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            minZoom: 3, // Minimum zoom level for the map
-            // maxZoom: 18, // Optional: Define a max zoom if needed
+        // 1. Add the base satellite imagery layer
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            minZoom: 3,
+            maxZoom: 18,
         }).addTo(map);
+
+        // 2. Create a separate pane for labels to ensure they appear above the satellite tiles
+        map.createPane('labels');
+        map.getPane('labels').style.zIndex = 650;
+        map.getPane('labels').style.pointerEvents = 'none'; // Makes the label layer "click-through"
+
+        // 3. Add the boundaries and labels layer on top, in the new pane
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            pane: 'labels', // Assign this layer to the 'labels' pane
+            minZoom: 3,
+            maxZoom: 18,
+        }).addTo(map);
+
 
         const loadingSpinner = document.getElementById('loading');
         const errorMessage = document.getElementById('error-message');
@@ -327,7 +344,9 @@
                             assetTypes.add(type); uniqueZones.add(zone);
                             const marker = L.marker([lat, lon], { icon: markerIcon });
                             marker.assetData = { type, zone, name, description, lat, lon, markerStyle: markerStyle };
-                            const popupContent = `<div style="font-family: 'Segoe UI', sans-serif; min-width: 180px;"><h3 style="margin:0 0 8px;color:${iconColorForType};border-bottom:1px solid ${iconColorForType};padding-bottom:4px;font-size:16px;">${name}</h3><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Type:</strong> <span style="color:${iconColorForType};">${type}</span></p><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Zone:</strong> ${zone === 'Unknown Zone' ? 'N/A' : zone}</p><p style="margin:8px 0;color:#444;line-height:1.4;font-size:13px;">${description}</p><p style="margin:4px 0;font-size:11px;color:#777;">Coords: ${lat.toFixed(4)}, ${lon.toFixed(4)}</p></div>`;
+                            
+                            const popupContent = `<div style="min-width: 180px;"><h3 style="margin:0 0 8px;color:${iconColorForType};border-bottom:1px solid ${iconColorForType};padding-bottom:4px;font-size:16px;">${name}</h3><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Type:</strong> <span style="color:${iconColorForType};">${type}</span></p><p style="margin:4px 0;font-size:13px;"><strong style="color:#555;">Zone:</strong> ${zone === 'Unknown Zone' ? 'N/A' : zone}</p><p style="margin:8px 0;color:#444;line-height:1.4;font-size:13px;">${description}</p><p style="margin:4px 0;font-size:11px;color:#777;">Coords: ${lat.toFixed(4)}, ${lon.toFixed(4)}</p></div>`;
+                            
                             marker.bindPopup(popupContent, { maxWidth: 280, className: 'custom-popup' });
                             marker.bindTooltip(name, { permanent: false, direction: 'top', offset: [0, tooltipOffsetY], className: 'custom-tooltip' });
                             marker.on('mouseover', function(e) { this.openTooltip(); });
